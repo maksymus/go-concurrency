@@ -1,8 +1,8 @@
 package main
 
 import (
-	"concurrency/src/patterns"
 	"fmt"
+	"github.com/maksymus/go-concurrency/patterns"
 	"strconv"
 	"time"
 )
