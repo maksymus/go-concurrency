@@ -36,6 +36,14 @@ func main() {
 		}(semaphore, i)
 	}
 
+	// Pipeline
+	ch := patterns.Modify(patterns.Generate(1, 2, 3, 4), func(i int) int {
+		return i * i
+	})
+	for num := range ch {
+		fmt.Printf("pipeline: %d\n", num)
+	}
+
 	time.Sleep(10 * time.Second)
 }
 
