@@ -30,7 +30,3 @@ func FanIn(chs ... chan string) <-chan string {
 
 	return result
 }
-
-func FanOut(cannel chan string)  <-chan[] string {
-	panic("implement me")
-}
