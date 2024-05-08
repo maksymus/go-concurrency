@@ -37,14 +37,14 @@ func main() {
 	}
 
 	// Pipeline
-	ch := patterns.Modify(patterns.Generate(1, 2, 3, 4), func(i int) int {
-		return i * i
-	})
+	ch := patterns.Modify(patterns.Generate(1, 2, 3, 4), pow2)
 	for num := range ch {
 		fmt.Printf("pipeline: %d\n", num)
 	}
 
-	time.Sleep(10 * time.Second)
+	// Worker Pool
+	res := patterns.Work([]int{1, 2, 3, 4, 5, 6, 7}, 3, pow2)
+	fmt.Printf("workers: %v\n", res)
 }
 
 func channelGenerator(numbers ... int) chan string {
@@ -57,4 +57,8 @@ func channelGenerator(numbers ... int) chan string {
 		}
 	}()
 	return ch
+}
+
+func pow2(n int) int {
+	return n * n
 }
