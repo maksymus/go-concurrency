@@ -12,12 +12,12 @@ func Work(nums []int, numWorkers int, f func(int) int) (ret []int) {
 
     // start workers
     go func() {
-        defer close(out)
-        defer wg.Wait()
         for i := 0; i < numWorkers; i++ {
             wg.Add(1)
             go work(in, out, &wg, f)
         }
+        wg.Wait()
+        close(out)
     }()
 
     // generate data
