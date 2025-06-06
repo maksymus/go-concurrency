@@ -29,8 +29,6 @@ func NewWorker(workerPool chan chan Job) *Worker {
 }
 
 func (w *Worker) Start(ctx context.Context) {
-	defer close(w.jobChannel)
-
 	go func() {
 		for {
 			// add worker to the pool

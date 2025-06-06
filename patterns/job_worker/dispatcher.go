@@ -31,8 +31,6 @@ func (d *Dispatcher) Run(ctx context.Context) {
 }
 
 func (d *Dispatcher) dispatch(ctx context.Context) {
-	defer close(d.workerPool)
-
 	for {
 		select {
 		case <-ctx.Done():
