@@ -29,6 +29,8 @@ func NewWorker(workerPool chan chan Job) *Worker {
 }
 
 func (w *Worker) Start(ctx context.Context) {
+	defer close(w.jobChannel)
+
 	go func() {
 		for {
 			// add worker to the pool
@@ -41,9 +43,6 @@ func (w *Worker) Start(ctx context.Context) {
 					fmt.Println("Error processing job:", err)
 				}
 			case <-ctx.Done():
-				// if context is done, stop the worker
-				fmt.Println("Worker stopped")
-				close(w.jobChannel)
 				return
 			}
 		}

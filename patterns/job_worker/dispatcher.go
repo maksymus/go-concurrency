@@ -31,11 +31,13 @@ func (d *Dispatcher) Run(ctx context.Context) {
 }
 
 func (d *Dispatcher) dispatch(ctx context.Context) {
+	defer close(d.workerPool)
+
 	for {
 		select {
 		case <-ctx.Done():
 			// if context is done, stop the dispatcher
-			close(d.workerPool)
+			return
 		case job := <-JobQueue:
 			go func(job Job) {
 				// get a worker from the pool
