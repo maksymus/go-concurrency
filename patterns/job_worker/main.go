@@ -1,12 +1,30 @@
 package main
 
-import "time"
+import (
+	"context"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
 
 func main() {
-	dispatcher := NewDispatcher(3)
-	dispatcher.Run()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	JobQueue = make(chan Job, 10)
+	// Set up channel to listen for interrupt signals
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+
+	// Goroutine to handle interrupt signals
+	go func() {
+		<-signalChan
+		cancel()
+	}()
+
+	// Example usage of the dispatcher and job queue
+	dispatcher := NewDispatcher(3)
+	dispatcher.Run(ctx)
 
 	for i := 0; i < 10; i++ {
 		job := Job{payload: Payload{}}

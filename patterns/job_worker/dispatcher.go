@@ -1,5 +1,11 @@
 package main
 
+import "context"
+
+func init() {
+	JobQueue = make(chan Job, 100) // Buffered channel for job queue
+}
+
 var JobQueue chan Job
 
 type Dispatcher struct {
@@ -15,18 +21,21 @@ func NewDispatcher(numWorkers int) *Dispatcher {
 	}
 }
 
-func (d *Dispatcher) Run() {
+func (d *Dispatcher) Run(ctx context.Context) {
 	for i := 0; i < d.maxWorkers; i++ {
 		worker := NewWorker(d.workerPool)
-		worker.Start()
+		worker.Start(ctx)
 	}
 
-	go d.dispatch()
+	go d.dispatch(ctx)
 }
 
-func (d *Dispatcher) dispatch() {
+func (d *Dispatcher) dispatch(ctx context.Context) {
 	for {
 		select {
+		case <-ctx.Done():
+			// if context is done, stop the dispatcher
+			close(d.workerPool)
 		case job := <-JobQueue:
 			go func(job Job) {
 				// get a worker from the pool

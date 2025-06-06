@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 type Payload struct{}
 
@@ -16,18 +19,16 @@ type Job struct {
 type Worker struct {
 	workerPool chan chan Job
 	jobChannel chan Job
-	quit       chan bool
 }
 
 func NewWorker(workerPool chan chan Job) *Worker {
 	return &Worker{
 		workerPool: workerPool,
 		jobChannel: make(chan Job),
-		quit:       make(chan bool),
 	}
 }
 
-func (w *Worker) Start() {
+func (w *Worker) Start(ctx context.Context) {
 	go func() {
 		for {
 			// add worker to the pool
@@ -39,17 +40,12 @@ func (w *Worker) Start() {
 				if err := job.payload.Process(); err != nil {
 					fmt.Println("Error processing job:", err)
 				}
-			case <-w.quit:
+			case <-ctx.Done():
+				// if context is done, stop the worker
+				fmt.Println("Worker stopped")
+				close(w.jobChannel)
 				return
 			}
 		}
-	}()
-}
-
-func (w *Worker) Stop() {
-	go func() {
-		w.quit <- true
-		close(w.jobChannel)
-		close(w.quit)
 	}()
 }
